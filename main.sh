@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# --- PRE-FLIGHT CHECK ---
+# --- PRE-FLIGHT CHECK: BREW ---
 echo "🔍 Checking for Homebrew..."
 if ! command -v brew &> /dev/null
 then
@@ -8,31 +8,39 @@ then
     echo "⚠️  You must install Homebrew from https://brew.sh/ first, otherwise this command will fail."
     exit 1
 fi
+echo "✅ Homebrew found."
 
-echo "✅ Homebrew found. Proceeding with dependency check..."
+# --- GIT & DEPENDENCY INSTALL ---
+echo "📥 Installing Git, CMake, and Protobuf..."
+brew install git cmake protobuf
 
-# --- INSTALL DEPENDENCIES ---
-echo "📥 Installing required tools (cmake, protobuf, nanopb)..."
-brew install cmake protobuf
-# Note: Nanopb is usually handled as a submodule or local files, 
-# but we ensure the environment is ready for it.
+# --- REPO INITIALIZATION ---
+echo "📂 Cloning the 'Coin' Repository..."
+if [ -d "coin" ]; then
+    echo "⚠️  Directory 'coin' already exists. Pulling latest changes..."
+    cd coin && git pull
+else
+    git clone https://github.com/omardoughman/coin.git
+    cd coin
+fi
 
-# --- DIRECTORY SETUP ---
-echo "📂 Setting up environment..."
+# --- ENVIRONMENT SETUP ---
+echo "🔐 Initializing codecs and build environment..."
 mkdir -p build
 touch main.codec su.codec needed.codec
 
 # --- COMPILATION ---
-echo "📦 Compiling Protocol Buffers..."
-# Using the flat structure we planned
+echo "📦 Compiling Nanopb/Proto data structures..."
+# This converts your .proto into C files
 protoc --nanopb_out=. main.proto
 
-echo "🔗 Linking Java and C++ via CMake..."
+echo "🔗 Linking Java (JNI) and C++ layers via CMake..."
 cd build
 cmake ..
 make
 cd ..
 
 # --- LAUNCH ---
-echo "🚀 Build Complete. Starting Coin Bridge..."
+echo "🚀 SUCCESS! All systems connected."
+echo "Running Python Manager..."
 python3 main.py

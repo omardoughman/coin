@@ -1,46 +1,31 @@
 #!/bin/bash
 
-# --- PRE-FLIGHT CHECK: BREW ---
-echo "🔍 Checking for Homebrew..."
-if ! command -v brew &> /dev/null
-then
-    echo "❌ ERROR: Homebrew is not installed."
-    echo "⚠️  You must install Homebrew from https://brew.sh/ first, otherwise this command will fail."
+# --- BREW CHECK ---
+if ! command -v brew &> /dev/null; then
+    echo "❌ ERROR: Install Brew at https://brew.sh/"
     exit 1
 fi
-echo "✅ Homebrew found."
 
-# --- GIT & DEPENDENCY INSTALL ---
-echo "📥 Installing Git, CMake, and Protobuf..."
-brew install git cmake protobuf
+# --- INSTALL ---
+brew install git cmake protobuf openjdk
 
-# --- REPO INITIALIZATION ---
-echo "📂 Cloning the 'Coin' Repository..."
-if [ -d "coin" ]; then
-    echo "⚠️  Directory 'coin' already exists. Pulling latest changes..."
-    cd coin && git pull
-else
+# --- REPO SETUP ---
+if [ ! -d "coin" ]; then
     git clone https://github.com/omardoughman/coin.git
     cd coin
 fi
 
-# --- ENVIRONMENT SETUP ---
-echo "🔐 Initializing codecs and build environment..."
+# --- BUILD C ENGINE ---
 mkdir -p build
-touch main.codec su.codec needed.codec
-
-# --- COMPILATION ---
-echo "📦 Compiling Nanopb/Proto data structures..."
-# This converts your .proto into C files
-protoc --nanopb_out=. main.proto
-
-echo "🔗 Linking Java (JNI) and C++ layers via CMake..."
 cd build
 cmake ..
-make
+make # This creates a standalone 'coin_engine' executable
 cd ..
 
-# --- LAUNCH ---
-echo "🚀 SUCCESS! All systems connected."
-echo "Running Python Manager..."
-python3 main.py
+# --- BUILD JAVA ---
+javac main.java needed.java package.java
+
+# --- LAUNCH BOTH ---
+echo "🚀 Launching Parallel Systems..."
+./build/coin_engine &  # Start C in background
+java main &           # Start Java in foreground

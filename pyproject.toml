@@ -1,0 +1,8 @@
+[project]
+name = "comprendo-bridge"
+version = "0.1.0"
+dependencies = [
+    "firebase-admin",
+    "pymongo",
+    "protobuf"
+]

@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.10)
+project(CoinSystem)
+set(CMAKE_C_STANDARD 11)
+include_directories(.) 
+add_executable(coin_engine main.c cntrl.c main.cpp)

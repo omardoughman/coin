@@ -1,0 +1,3 @@
+VERSION=2.0.0
+REQUIRED_LIBS=nanopb,protobuf,openssl
+TARGET_ARCH=arm64,x86_64

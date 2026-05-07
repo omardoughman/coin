@@ -1,0 +1,8 @@
+[Unit]
+Description=Coin Main Service
+[Service]
+ExecStart=/usr/bin/python3 main.py
+WorkingDirectory=/home/ubuntu/coin
+Restart=always
+[Install]
+WantedBy=multi-user.target
